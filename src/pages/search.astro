@@ -1,0 +1,99 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="搜索 - 阿福的博客" description="搜索博客文章">
+  <section class="archive-page page-shell">
+    <header class="page-hero glass-card">
+      <div>
+        <p>Search</p>
+        <h1>文章搜索</h1>
+      </div>
+      <span data-search-count>输入关键词</span>
+    </header>
+
+    <section class="search-panel glass-card">
+      <input data-search-input type="search" placeholder="搜索标题、摘要、分类或标签" autocomplete="off" />
+    </section>
+
+    <section class="search-results article-grid archive-grid" data-search-results>
+      <div class="empty glass-card">输入关键词后开始搜索。</div>
+    </section>
+  </section>
+
+  <script>
+    const input = document.querySelector("[data-search-input]");
+    const results = document.querySelector("[data-search-results]");
+    const count = document.querySelector("[data-search-count]");
+    const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    let posts = [];
+
+    const escapeHtml = (value) =>
+      String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+
+    const render = () => {
+      const query = input.value.trim().toLowerCase();
+      if (!query) {
+        count.textContent = "输入关键词";
+        results.innerHTML = '<div class="empty glass-card">输入关键词后开始搜索。</div>';
+        return;
+      }
+
+      const matched = posts.filter((post) => {
+        const haystack = [
+          post.title,
+          post.description,
+          post.category,
+          ...(post.tags || []),
+        ]
+          .join(" ")
+          .toLowerCase();
+        return haystack.includes(query);
+      });
+
+      count.textContent = `${matched.length} 个结果`;
+      results.innerHTML =
+        matched.length > 0
+          ? matched
+              .map(
+                (post) => `
+                  <article class="article-card is-visible">
+                    <a href="/posts/${encodeURIComponent(post.id)}" class="article-card-link">
+                      <div class="article-cover">
+                        <img src="/assets/home-bg.jpg" alt="${escapeHtml(post.title)}" loading="lazy" />
+                        <span>${escapeHtml(post.category)}</span>
+                        ${post.pinned ? '<strong class="pin-badge">置顶</strong>' : ""}
+                      </div>
+                      <div class="article-card-body">
+                        <h2>${escapeHtml(post.title)}</h2>
+                        <p>${escapeHtml(post.description)}</p>
+                        <div class="article-meta">
+                          <time>${dateFormatter.format(new Date(post.date))}</time>
+                          <span>${escapeHtml((post.tags || []).join(" / ") || "无标签")}</span>
+                        </div>
+                      </div>
+                    </a>
+                  </article>`
+              )
+              .join("")
+          : '<div class="empty glass-card">没有匹配的文章。</div>';
+    };
+
+    fetch("/search.json")
+      .then((res) => res.json())
+      .then((data) => {
+        posts = data;
+        render();
+      });
+
+    input.addEventListener("input", render);
+  </script>
+</BaseLayout>

@@ -1,0 +1,39 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Pagination from "../../components/Pagination.astro";
+import PostCard from "../../components/PostCard.astro";
+import { paginatePosts, sortPosts } from "../../utils/posts";
+
+export async function getStaticPaths() {
+  const posts = sortPosts(await getCollection("posts", ({ data }) => !data.draft));
+  const totalPages = Math.max(1, Math.ceil(posts.length / 9));
+
+  return Array.from({ length: Math.max(0, totalPages - 1) }, (_, index) => {
+    const page = index + 2;
+    return { params: { page: String(page) } };
+  });
+}
+
+const posts = sortPosts(await getCollection("posts", ({ data }) => !data.draft));
+const currentPage = Number(Astro.params.page || 1);
+const page = paginatePosts(posts, currentPage);
+---
+
+<BaseLayout title={`文章第 ${page.currentPage} 页 - 阿福的博客`} description="浏览更多博客文章">
+  <section class="archive-page page-shell">
+    <header class="page-hero glass-card">
+      <div>
+        <p>Posts</p>
+        <h1>文章列表</h1>
+      </div>
+      <span>第 {page.currentPage} / {page.totalPages} 页</span>
+    </header>
+
+    <section class="article-grid archive-grid">
+      {page.posts.map((post) => <PostCard post={post} />)}
+    </section>
+
+    <Pagination currentPage={page.currentPage} totalPages={page.totalPages} />
+  </section>
+</BaseLayout>

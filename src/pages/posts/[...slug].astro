@@ -1,0 +1,128 @@
+---
+import { getCollection, getEntry, render } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PostCard from "../../components/PostCard.astro";
+import { getRelatedPosts, sortPosts } from "../../utils/posts";
+
+export async function getStaticPaths() {
+  const posts = sortPosts(await getCollection("posts", ({ data }) => !data.draft));
+  return posts.map((post) => ({
+    params: { slug: post.id },
+  }));
+}
+
+const slug = Astro.params.slug!;
+const post = await getEntry("posts", slug);
+if (!post) {
+  throw new Error(`Post not found: ${slug}`);
+}
+const { Content, headings } = await render(post);
+const allPosts = sortPosts(await getCollection("posts", ({ data }) => !data.draft));
+const currentIndex = allPosts.findIndex((item) => item.id === post.id);
+const previousPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
+const nextPost = currentIndex >= 0 && currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
+const relatedPosts = getRelatedPosts(allPosts, post, 3);
+const category = post.data.category || "未分类";
+---
+
+<BaseLayout
+  title={`${post.data.title} - 阿福的博客`}
+  description={post.data.description}
+>
+  <div class="read-progress" data-read-progress></div>
+
+  <div class="detail-page">
+    <div class="detail-layout page-shell">
+      <article class="article-detail glass-card">
+        <header class="article-hero">
+          <img src="/assets/home-bg.jpg" alt={post.data.title} />
+          <div class="article-hero-copy">
+            <span class="cover-badge">{category}</span>
+            <h1>{post.data.title}</h1>
+            <div class="post-meta">
+              <time datetime={post.data.date.toISOString()}>
+                {post.data.date.toLocaleDateString("zh-CN", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </time>
+              <span>0 阅读</span>
+              {post.data.pinned && <span>置顶</span>}
+            </div>
+          </div>
+        </header>
+
+        <div class="markdown-body">
+          <Content />
+        </div>
+
+        <section class="copyright">
+          <strong>版权声明</strong>
+          <p>本文为 Afu's Blog 原创或整理内容，转载请注明出处。若内容引用自公开资料，会在正文中保留来源说明。</p>
+        </section>
+
+        <nav class="post-neighbor">
+          {
+            previousPost ? (
+              <a href={`/posts/${previousPost.id}`}>
+                <small>上一篇</small>
+                <span>{previousPost.data.title}</span>
+              </a>
+            ) : (
+              <span class="disabled">
+                <small>上一篇</small>
+                <span>已经是第一篇</span>
+              </span>
+            )
+          }
+          {
+            nextPost ? (
+              <a href={`/posts/${nextPost.id}`}>
+                <small>下一篇</small>
+                <span>{nextPost.data.title}</span>
+              </a>
+            ) : (
+              <span class="disabled">
+                <small>下一篇</small>
+                <span>已经是最后一篇</span>
+              </span>
+            )
+          }
+        </nav>
+
+        {
+          relatedPosts.length > 0 && (
+            <section class="related-posts">
+              <div class="section-heading">
+                <span>相关文章</span>
+                <a href={`/categories/${category}`}>更多{category}</a>
+              </div>
+              <div class="article-grid related-grid">
+                {relatedPosts.map((related) => <PostCard post={related} />)}
+              </div>
+            </section>
+          )
+        }
+      </article>
+
+      <aside class="toc glass-card">
+        <h3>目录</h3>
+        {
+          headings.length > 0 ? (
+            headings.map((heading) => (
+              <a href={`#${heading.slug}`} style={`padding-left: ${(heading.depth - 1) * 12}px`}>
+                {heading.text}
+              </a>
+            ))
+          ) : (
+            <span>暂无目录</span>
+          )
+        }
+        <div class="toc-back">
+          <a href="/">返回首页</a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>

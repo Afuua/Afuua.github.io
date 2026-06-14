@@ -1,0 +1,62 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="关于 - 阿福的博客" description="关于我和这个博客">
+  <section class="personal-page page-shell">
+    <section class="profile-hero glass-card">
+      <div class="profile-copy">
+        <p>About</p>
+        <h1>你好，我是 Afu</h1>
+        <span>一个持续学习的开发者，喜欢把经验沉淀成文章，也喜欢把界面打磨得更顺手。</span>
+        <div class="profile-links">
+          <a href="https://github.com" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="mailto:afu@example.com">Email</a>
+        </div>
+      </div>
+      <img src="https://ui-avatars.com/api/?name=Afu&background=3a8dde&color=fff&size=256" alt="Afu" />
+    </section>
+
+    <section class="content-grid">
+      <div class="panel glass-card">
+        <h2>技能树</h2>
+        <div class="skill-list">
+          <div class="skill">
+            <div><span>Vue / TypeScript</span><small>86%</small></div>
+            <span class="skill-bar"><i style="width: 86%"></i></span>
+          </div>
+          <div class="skill">
+            <div><span>Astro / Tailwind</span><small>82%</small></div>
+            <span class="skill-bar"><i style="width: 82%"></i></span>
+          </div>
+          <div class="skill">
+            <div><span>Markdown 写作</span><small>88%</small></div>
+            <span class="skill-bar"><i style="width: 88%"></i></span>
+          </div>
+          <div class="skill">
+            <div><span>UI 体验打磨</span><small>76%</small></div>
+            <span class="skill-bar"><i style="width: 76%"></i></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel glass-card">
+        <h2>时间线</h2>
+        <ol class="timeline">
+          <li>
+            <strong>2026</strong>
+            <span>把博客前端向 Butterfly 风格靠近，重视阅读体验和视觉层次。</span>
+          </li>
+          <li>
+            <strong>2025</strong>
+            <span>持续整理技术笔记和项目复盘。</span>
+          </li>
+          <li>
+            <strong>现在</strong>
+            <span>保持写作、构建和学习的节奏。</span>
+          </li>
+        </ol>
+      </div>
+    </section>
+  </section>
+</BaseLayout>

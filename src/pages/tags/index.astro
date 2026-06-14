@@ -1,0 +1,34 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getAllTags, sortPosts } from "../../utils/posts";
+
+const posts = sortPosts(await getCollection("posts", ({ data }) => !data.draft));
+const tags = getAllTags(posts);
+---
+
+<BaseLayout title="标签 - 阿福的博客" description="按标签浏览文章">
+  <section class="archive-page page-shell">
+    <header class="page-hero glass-card">
+      <div>
+        <p>Archives</p>
+        <h1>文章标签</h1>
+      </div>
+      <span>{posts.length} 篇文章</span>
+    </header>
+
+    <section class="filters glass-card">
+      <div class="filter-group">
+        <span>标签</span>
+        {
+          tags.map(([tag, count]) => (
+            <a href={`/tags/${tag}`}>
+              {tag}
+              <small>{count}</small>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+  </section>
+</BaseLayout>

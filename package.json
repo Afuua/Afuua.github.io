@@ -1,0 +1,31 @@
+{
+  "name": "afu-blog",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "sync:assets": "node scripts/version-cli.mjs sync",
+    "snapshot:create": "node scripts/version-cli.mjs create",
+    "snapshot:list": "node scripts/version-cli.mjs list",
+    "snapshot:restore": "node scripts/version-cli.mjs restore",
+    "predev": "npm run sync:assets",
+    "dev": "astro dev",
+    "prestart": "npm run sync:assets",
+    "start": "astro dev",
+    "preadmin": "npm run sync:assets",
+    "admin": "node scripts/admin-server.mjs",
+    "prebuild": "npm run sync:assets",
+    "build": "astro build",
+    "prepreview": "npm run sync:assets",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/rss": "^4.0.10",
+    "@astrojs/sitemap": "^3.2.1",
+    "astro": "^5.1.0"
+  },
+  "devDependencies": {
+    "@astrojs/tailwind": "^5.1.4",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.0"
+  }
+}

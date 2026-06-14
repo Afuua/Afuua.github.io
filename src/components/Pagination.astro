@@ -1,0 +1,31 @@
+---
+interface Props {
+  currentPage: number;
+  totalPages: number;
+}
+
+const { currentPage, totalPages } = Astro.props;
+const pageHref = (page: number) => (page === 1 ? "/" : `/page/${page}`);
+const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
+---
+
+{
+  totalPages > 1 && (
+    <nav class="pagination" aria-label="文章分页">
+      <a class={currentPage === 1 ? "disabled" : ""} href={pageHref(Math.max(1, currentPage - 1))}>
+        上一页
+      </a>
+      {pages.map((page) => (
+        <a href={pageHref(page)} aria-current={page === currentPage ? "page" : undefined}>
+          {page}
+        </a>
+      ))}
+      <a
+        class={currentPage === totalPages ? "disabled" : ""}
+        href={pageHref(Math.min(totalPages, currentPage + 1))}
+      >
+        下一页
+      </a>
+    </nav>
+  )
+}

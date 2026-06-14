@@ -1,0 +1,42 @@
+---
+const navItems = [
+  { href: "/", label: "首页", icon: "⌂" },
+  { href: "/tags", label: "标签", icon: "▤" },
+  { href: "/categories", label: "分类", icon: "◇" },
+  { href: "/archives", label: "归档", icon: "◷" },
+  { href: "/search", label: "搜索", icon: "⌕" },
+  { href: "/about", label: "个人", icon: "◎" },
+];
+const currentPath = Astro.url.pathname;
+const isCurrent = (href: string) =>
+  href === "/" ? currentPath === "/" : currentPath === href || currentPath.startsWith(`${href}/`);
+---
+
+<header class="site-header" data-site-header>
+  <nav class="nav-inner" aria-label="主导航">
+    <a href="/" class="brand">
+      <span class="brand-mark">A</span>
+      <span>Afu's Blog</span>
+    </a>
+
+    <ul class="nav-links">
+      {
+        navItems.map((item) => (
+          <li>
+            <a href={item.href} aria-current={isCurrent(item.href) ? "page" : undefined}>
+              <span class="nav-icon" aria-hidden="true">{item.icon}</span>
+              <span class="nav-label">{item.label}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="nav-actions">
+      <a class="icon-button" href="/rss.xml" title="RSS 订阅" aria-label="RSS 订阅">R</a>
+      <button class="icon-button" type="button" title="切换暗色" data-theme-toggle aria-label="切换主题">
+        <span data-theme-icon>☾</span>
+      </button>
+    </div>
+  </nav>
+</header>

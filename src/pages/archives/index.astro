@@ -1,0 +1,51 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { sortPosts } from "../../utils/posts";
+
+const posts = sortPosts(await getCollection("posts", ({ data }) => !data.draft));
+const archive = new Map<string, typeof posts>();
+
+for (const post of posts) {
+  const year = post.data.date.getFullYear();
+  const month = String(post.data.date.getMonth() + 1).padStart(2, "0");
+  const key = `${year} 年 ${month} 月`;
+  archive.set(key, [...(archive.get(key) ?? []), post]);
+}
+---
+
+<BaseLayout title="归档 - 阿福的博客" description="按时间浏览博客文章">
+  <section class="archive-page page-shell">
+    <header class="page-hero glass-card">
+      <div>
+        <p>Timeline</p>
+        <h1>时间归档</h1>
+      </div>
+      <span>{posts.length} 篇文章</span>
+    </header>
+
+    <section class="timeline-archive">
+      {
+        [...archive.entries()].map(([month, monthPosts]) => (
+          <section class="archive-month glass-card">
+            <h2>{month}</h2>
+            <div class="archive-list">
+              {monthPosts.map((post) => (
+                <a href={`/posts/${post.id}`}>
+                  <time datetime={post.data.date.toISOString()}>
+                    {post.data.date.toLocaleDateString("zh-CN", {
+                      month: "2-digit",
+                      day: "2-digit",
+                    })}
+                  </time>
+                  <span>{post.data.title}</span>
+                  <small>{post.data.category || "未分类"}</small>
+                </a>
+              ))}
+            </div>
+          </section>
+        ))
+      }
+    </section>
+  </section>
+</BaseLayout>

@@ -1,0 +1,43 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PostCard from "../../components/PostCard.astro";
+import { sortPosts } from "../../utils/posts";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("posts", ({ data }) => !data.draft);
+  const categories = new Set(posts.map((post) => post.data.category || "未分类"));
+  return [...categories].map((category) => ({ params: { category } }));
+}
+
+const { category } = Astro.params;
+const posts = sortPosts(
+  await getCollection("posts", ({ data }) => !data.draft && (data.category || "未分类") === category)
+);
+---
+
+<BaseLayout title={`${category} - 阿福的博客`} description={`分类 ${category} 下的所有文章`}>
+  <section class="archive-page page-shell">
+    <header class="page-hero glass-card">
+      <div>
+        <p>Category</p>
+        <h1>{category}</h1>
+      </div>
+      <span>{posts.length} 篇文章</span>
+    </header>
+
+    <section class="article-grid archive-grid">
+      {
+        posts.length > 0 ? (
+          posts.map((post) => <PostCard post={post} />)
+        ) : (
+          <div class="empty glass-card">暂时没有匹配的文章。</div>
+        )
+      }
+    </section>
+
+    <div class="archive-back">
+      <a href="/categories">所有分类</a>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,38 @@
+---
+const { post } = Astro.props;
+const href = `/posts/${post.id}`;
+const category = post.data.category || "未分类";
+---
+
+<article class="article-card">
+  <a href={href} class="article-card-link">
+    <div class="article-cover">
+      <img src="/assets/home-bg.jpg" alt={post.data.title} loading="lazy" />
+      <span>{category}</span>
+      {post.data.pinned && <strong class="pin-badge">置顶</strong>}
+    </div>
+    <div class="article-card-body">
+      <h2>{post.data.title}</h2>
+      <p>{post.data.description}</p>
+      <div class="article-meta">
+        <time datetime={post.data.date.toISOString()}>
+          {post.data.date.toLocaleDateString("zh-CN", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          })}
+        </time>
+        <span>0 阅读</span>
+      </div>
+    </div>
+  </a>
+  {
+    post.data.tags.length > 0 && (
+      <div class="article-tags">
+        {post.data.tags.map((tag) => (
+          <a href={`/tags/${tag}`}>{tag}</a>
+        ))}
+      </div>
+    )
+  }
+</article>
