@@ -97,7 +97,7 @@ main { min-height: calc(100vh - 88px); }
   position: fixed;
   inset: 0;
   z-index: -1;
-  background: url('/assets/home-bg.jpg') center / cover;
+  background: url('/assets/home-bg.jpg?v=2') center / cover;
 }
 
 /* ==================================================================

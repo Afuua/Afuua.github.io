@@ -68,7 +68,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
                   <article class="article-card is-visible">
                     <a href="/posts/${encodeURIComponent(post.id)}" class="article-card-link">
                       <div class="article-cover">
-                        <img src="/assets/home-bg.jpg" alt="${escapeHtml(post.title)}" loading="lazy" />
+                        <img src="/assets/home-bg.jpg?v=2" alt="${escapeHtml(post.title)}" loading="lazy" />
                         <span>${escapeHtml(post.category)}</span>
                         ${post.pinned ? '<strong class="pin-badge">置顶</strong>' : ""}
                       </div>
