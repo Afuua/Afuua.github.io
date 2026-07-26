@@ -6,7 +6,7 @@ export async function GET(context) {
   posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
   return rss({
-    title: "阿福的博客",
+    title: "Afu的博客",
     description: "写代码、聊技术、分享生活。",
     site: context.site ?? "https://afu.im",
     items: posts.map((post) => ({

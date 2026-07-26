@@ -20,7 +20,7 @@ const currentPage = Number(Astro.params.page || 1);
 const page = paginatePosts(posts, currentPage);
 ---
 
-<BaseLayout title={`文章第 ${page.currentPage} 页 - 阿福的博客`} description="浏览更多博客文章">
+<BaseLayout title={`文章第 ${page.currentPage} 页 - Afu的博客`} description="浏览更多博客文章">
   <section class="archive-page page-shell">
     <header class="page-hero glass-card">
       <div>
