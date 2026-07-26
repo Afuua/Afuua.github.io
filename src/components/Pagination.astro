@@ -11,21 +11,118 @@ const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
 
 {
   totalPages > 1 && (
-    <nav class="pagination" aria-label="文章分页">
-      <a class={currentPage === 1 ? "disabled" : ""} href={pageHref(Math.max(1, currentPage - 1))}>
+    <nav class="pagination" aria-label="文章分页" data-pagination>
+      <a class={currentPage === 1 ? "disabled" : ""} href={pageHref(Math.max(1, currentPage - 1))} data-page={Math.max(1, currentPage - 1)}>
         上一页
       </a>
       {pages.map((page) => (
-        <a href={pageHref(page)} aria-current={page === currentPage ? "page" : undefined}>
+        <a href={pageHref(page)} aria-current={page === currentPage ? "page" : undefined} data-page={page}>
           {page}
         </a>
       ))}
       <a
         class={currentPage === totalPages ? "disabled" : ""}
         href={pageHref(Math.min(totalPages, currentPage + 1))}
+        data-page={Math.min(totalPages, currentPage + 1)}
       >
         下一页
       </a>
     </nav>
   )
 }
+
+<script>
+  const PER_PAGE = 9;
+  const nav = document.querySelector('[data-pagination]');
+  if (!nav) { /* noop */ }
+  else {
+    const grid = document.querySelector('.article-grid');
+    const featured = document.getElementById('featured');
+    let postsCache = null;
+
+    async function loadPosts() {
+      if (!postsCache) {
+        const res = await fetch('/search.json');
+        postsCache = await res.json();
+      }
+      return postsCache;
+    }
+
+    function esc(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function fmtDate(iso) {
+      const d = new Date(iso);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}/${m}/${day}`;
+    }
+
+    function renderCards(posts) {
+      if (!grid) return;
+      grid.innerHTML = posts.length
+        ? posts.map(p => `
+          <article class="article-card is-visible">
+            <a href="/posts/${encodeURIComponent(p.id)}" class="article-card-link">
+              <div class="article-cover">
+                <img src="/assets/home-bg.jpg?v=2" alt="${esc(p.title)}" loading="lazy" />
+                <span>${esc(p.category)}</span>
+                ${p.pinned ? '<strong class="pin-badge">置顶</strong>' : ''}
+              </div>
+              <div class="article-card-body">
+                <h2>${esc(p.title)}</h2>
+                <p>${esc(p.description)}</p>
+                <div class="article-meta">
+                  <time>${fmtDate(p.date)}</time>
+                  <span>0 阅读</span>
+                </div>
+              </div>
+            </a>
+            ${(p.tags || []).length ? `<div class="article-tags">${p.tags.map(t => `<a href="/tags/${esc(t)}">${esc(t)}</a>`).join('')}</div>` : ''}
+          </article>
+        `).join('')
+        : '<div class="empty glass-card">还没有文章，马上就来...</div>';
+    }
+
+    function updatePagination(page, totalPages) {
+      nav.querySelectorAll('a').forEach(a => {
+        const p = parseInt(a.dataset.page);
+        if (p === page) a.setAttribute('aria-current', 'page');
+        else a.removeAttribute('aria-current');
+        if (p < 1 || p > totalPages) a.classList.add('disabled');
+        else a.classList.remove('disabled');
+      });
+    }
+
+    async function goToPage(page) {
+      const all = await loadPosts();
+      const totalPages = Math.max(1, Math.ceil(all.length / PER_PAGE));
+      const clamped = Math.min(Math.max(1, page), totalPages);
+      const start = (clamped - 1) * PER_PAGE;
+      const pagePosts = all.slice(start, start + PER_PAGE);
+      renderCards(pagePosts);
+      updatePagination(clamped, totalPages);
+      if (featured) featured.style.display = clamped === 1 ? '' : 'none';
+      const url = clamped === 1 ? '/' : `/page/${clamped}/`;
+      history.pushState({page: clamped}, '', url);
+      window.scrollTo({top: featured ? featured.offsetTop - 80 : 0, behavior: 'smooth'});
+    }
+
+    nav.addEventListener('click', e => {
+      const a = e.target.closest('a');
+      if (!a || a.classList.contains('disabled')) return;
+      const page = parseInt(a.dataset.page);
+      if (isNaN(page)) return;
+      e.preventDefault();
+      goToPage(page);
+    });
+
+    window.addEventListener('popstate', () => {
+      const m = location.pathname.match(/^\/page\/(\d+)\//);
+      const page = m ? parseInt(m[1]) : 1;
+      goToPage(page);
+    });
+  }
+</script>
