@@ -22,14 +22,12 @@ const ogImageUrl = ogImage ?? `${siteUrl}og-image.png`;
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
 
-    <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImageUrl} />
     <meta property="og:site_name" content="阿福的博客" />
 
-    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
@@ -39,6 +37,7 @@ const ogImageUrl = ogImage ?? `${siteUrl}og-image.png`;
     <title>{title}</title>
   </head>
   <body>
+    <div class="global-bg"></div>
     <Header />
     <main>
       <slot />
@@ -54,7 +53,6 @@ const ogImageUrl = ogImage ?? `${siteUrl}og-image.png`;
       const themeToggle = document.querySelector("[data-theme-toggle]");
       const themeIcon = document.querySelector("[data-theme-icon]");
       const readProgress = document.querySelector("[data-read-progress]");
-      const homeHero = document.querySelector("[data-home-hero]");
       const articleCards = [...document.querySelectorAll(".article-card")];
       const savedTheme = localStorage.getItem("theme");
       const prefersDarkMedia = window.matchMedia("(prefers-color-scheme: dark)");
@@ -65,26 +63,32 @@ const ogImageUrl = ogImage ?? `${siteUrl}og-image.png`;
         root.dataset.theme = theme;
         localStorage.setItem("theme", theme);
         if (themeIcon) themeIcon.textContent = theme === "dark" ? "☀" : "☾";
-        if (themeToggle) {
-          themeToggle.setAttribute("title", theme === "dark" ? "切换亮色" : "切换暗色");
-        }
+        if (themeToggle) themeToggle.setAttribute("title", theme === "dark" ? "切换亮色" : "切换暗色");
+        updateNavBg();
       };
+
+      function updateNavBg() {
+        if (!header) return;
+        const styles = getComputedStyle(root);
+        const r = styles.getPropertyValue('--nav-r').trim() || '28';
+        const g = styles.getPropertyValue('--nav-g').trim() || '27';
+        const b = styles.getPropertyValue('--nav-b').trim() || '25';
+        const s = window.scrollY;
+        const featuredEl = document.getElementById("featured");
+        const threshold = featuredEl
+          ? Math.max(200, featuredEl.getBoundingClientRect().top + s - 64)
+          : 200;
+        const alpha = Math.min(0.88, Math.max(0.1, 0.1 + (s / threshold) * 0.78)).toFixed(3);
+        header.style.background = `linear-gradient(rgba(${r},${g},${b},${alpha}), rgba(${r},${g},${b},${alpha}))`;
+      }
 
       const syncScrollState = () => {
         const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
         const progress = maxScroll > 0 ? Math.min(1, window.scrollY / maxScroll) : 0;
-        const heroHeight = homeHero?.clientHeight ?? 0;
-        const heroProgress = heroHeight > 0 ? Math.min(1, window.scrollY / (heroHeight * 0.82)) : 0;
-        const easedHeroProgress = 1 - Math.pow(1 - heroProgress, 2);
         header?.classList.toggle("is-scrolled", window.scrollY > 18);
         backTop?.classList.toggle("is-visible", window.scrollY > 420);
         if (readProgress) readProgress.style.transform = `scaleX(${progress})`;
-        if (homeHero) {
-          homeHero.style.setProperty("--hero-bg-opacity", `${Math.max(0, 1 - easedHeroProgress)}`);
-          homeHero.style.setProperty("--hero-content-opacity", `${Math.max(0, 1 - heroProgress * 1.35)}`);
-          homeHero.style.setProperty("--hero-content-shift", `${Math.round(heroProgress * -24)}px`);
-          homeHero.style.setProperty("--hero-bg-scale", `${1.02 + heroProgress * 0.06}`);
-        }
+        updateNavBg();
       };
 
       applyTheme(savedTheme === "dark" || (!savedTheme && prefersDark) ? "dark" : "light");
@@ -97,6 +101,15 @@ const ogImageUrl = ogImage ?? `${siteUrl}og-image.png`;
       backTop?.addEventListener("click", () => {
         window.scrollTo({ top: 0, behavior: "smooth" });
       });
+
+      /* 首页向下箭头 */
+      const heroArrow = document.querySelector("[data-hero-arrow]");
+      const featured = document.getElementById("featured");
+      if (heroArrow && featured) {
+        heroArrow.addEventListener("click", function() {
+          featured.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
 
       if (articleCards.length > 0 && "IntersectionObserver" in window && !reducedMotionMedia.matches) {
         root.classList.add("reveal-enabled");
@@ -124,6 +137,47 @@ const ogImageUrl = ogImage ?? `${siteUrl}og-image.png`;
       }
 
       window.addEventListener("scroll", syncScrollState, { passive: true });
+
+      /* ========== 帷幕开门 ========== */
+      (function curtain() {
+        const KEY = 'afu-blog-curtain';
+        if (sessionStorage.getItem(KEY)) return;
+        if (window.innerWidth < 768) return;
+        const path = window.location.pathname.replace(/\/$/, '') || '/';
+        if (path !== '/' && path !== '/index.html') return;
+
+        const OPEN_DURATION = 2000;
+
+        const el = document.createElement('div');
+        el.className = 'curtain';
+        el.innerHTML = '<div class="curtain-panel left"></div><div class="curtain-panel right"></div><div class="curtain-mark">Afu\'s Blog</div>';
+        document.body.appendChild(el);
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+
+        const left = el.querySelector('.curtain-panel.left');
+        const right = el.querySelector('.curtain-panel.right');
+        const mark = el.querySelector('.curtain-mark');
+
+        left.style.transition = 'transform ' + OPEN_DURATION + 'ms linear';
+        right.style.transition = 'transform ' + OPEN_DURATION + 'ms linear';
+        mark.style.transition = 'opacity ' + OPEN_DURATION + 'ms linear';
+
+        getComputedStyle(left).transform;
+        requestAnimationFrame(function() {
+          left.style.transform = 'translateX(-100%)';
+          right.style.transform = 'translateX(100%)';
+          mark.style.opacity = '0';
+        });
+
+        setTimeout(function() {
+          el.remove();
+          document.documentElement.style.overflow = '';
+          document.body.style.overflow = '';
+          window.scrollTo(0, 0);
+          sessionStorage.setItem(KEY, '1');
+        }, OPEN_DURATION + 200);
+      })();
     </script>
   </body>
 </html>

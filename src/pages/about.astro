@@ -8,55 +8,75 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       <div class="profile-copy">
         <p>About</p>
         <h1>你好，我是 Afu</h1>
-        <span>一个持续学习的开发者，喜欢把经验沉淀成文章，也喜欢把界面打磨得更顺手。</span>
+        <span>熟悉 Java 生态，具备从零构建完整业务系统的能力，目前在 AI 应用方向持续深入。</span>
         <div class="profile-links">
           <a href="https://github.com" target="_blank" rel="noreferrer">GitHub</a>
           <a href="mailto:afu@example.com">Email</a>
         </div>
       </div>
-      <img src="https://ui-avatars.com/api/?name=Afu&background=3a8dde&color=fff&size=256" alt="Afu" />
+      <img src="https://ui-avatars.com/api/?name=Afu&background=537D96&color=fff&size=256" alt="Afu" />
     </section>
 
-    <section class="content-grid">
-      <div class="panel glass-card">
-        <h2>技能树</h2>
-        <div class="skill-list">
-          <div class="skill">
-            <div><span>Vue / TypeScript</span><small>86%</small></div>
-            <span class="skill-bar"><i style="width: 86%"></i></span>
-          </div>
-          <div class="skill">
-            <div><span>Astro / Tailwind</span><small>82%</small></div>
-            <span class="skill-bar"><i style="width: 82%"></i></span>
-          </div>
-          <div class="skill">
-            <div><span>Markdown 写作</span><small>88%</small></div>
-            <span class="skill-bar"><i style="width: 88%"></i></span>
-          </div>
-          <div class="skill">
-            <div><span>UI 体验打磨</span><small>76%</small></div>
-            <span class="skill-bar"><i style="width: 76%"></i></span>
-          </div>
+    <section class="section-card glass-card">
+      <h2>技能</h2>
+      <div class="skill-groups">
+        <div class="skill-group">
+          <h3>后端</h3>
+          <ul>
+            <li>Java · Python</li>
+            <li>Spring Boot · Spring AI</li>
+            <li>MyBatis · MyBatis Plus</li>
+            <li>MySQL · Redis 及常见优化手段</li>
+          </ul>
+        </div>
+        <div class="skill-group">
+          <h3>前端</h3>
+          <ul>
+            <li>Vue 3 · TypeScript</li>
+            <li>UniApp · Element Plus</li>
+            <li>Pinia · Vite</li>
+          </ul>
+        </div>
+        <div class="skill-group">
+          <h3>AI / RAG</h3>
+          <ul>
+            <li>Embedding · 向量检索</li>
+            <li>Rerank · LLM 编排</li>
+            <li>RAGAS 评估</li>
+          </ul>
+        </div>
+        <div class="skill-group">
+          <h3>工程工具</h3>
+          <ul>
+            <li>Git · Maven · Nginx</li>
+            <li>Flask · watchdog</li>
+            <li>JUnit · Swagger</li>
+          </ul>
         </div>
       </div>
+    </section>
 
-      <div class="panel glass-card">
-        <h2>时间线</h2>
-        <ol class="timeline">
-          <li>
-            <strong>2026</strong>
-            <span>把博客前端向 Butterfly 风格靠近，重视阅读体验和视觉层次。</span>
-          </li>
-          <li>
-            <strong>2025</strong>
-            <span>持续整理技术笔记和项目复盘。</span>
-          </li>
-          <li>
-            <strong>现在</strong>
-            <span>保持写作、构建和学习的节奏。</span>
-          </li>
-        </ol>
-      </div>
+    <section class="section-card glass-card">
+      <h2>时间线</h2>
+      <ol class="timeline">
+        <li>
+          <strong>2026</strong>
+          <span>把博客前端向 Butterfly 风格靠近，重视阅读体验和视觉层次。</span>
+        </li>
+        <li>
+          <strong>2025</strong>
+          <span>持续整理技术笔记和项目复盘。</span>
+        </li>
+        <li>
+          <strong>2023</strong>
+          <span>大连海事大学 (211) · 软件工程 · 本科</span>
+          <small>2023.08 — 2027.06 · 英语 CET6</small>
+        </li>
+        <li>
+          <strong>现在</strong>
+          <span>保持写作、构建和学习的节奏。</span>
+        </li>
+      </ol>
     </section>
   </section>
 </BaseLayout>

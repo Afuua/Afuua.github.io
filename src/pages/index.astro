@@ -21,13 +21,14 @@ const runningDays = Math.max(1, Math.ceil((Date.now() - siteStart.getTime()) / 8
       <h1>Afu's Blog</h1>
       <p class="typewriter">记录技术、生活和一点点灵感闪光</p>
     </div>
+    <div class="hero-arrow" data-hero-arrow title="向下滚动"></div>
   </section>
 
   <section class="home-layout page-shell">
     <div class="feed">
       {
         featured && (
-          <section class="featured glass-card">
+          <section class="featured glass-card" id="featured">
             <div class="section-heading">
               <span>精选文章</span>
               <a href={`/posts/${featured.id}`}>阅读全文</a>
@@ -51,28 +52,18 @@ const runningDays = Math.max(1, Math.ceil((Date.now() - siteStart.getTime()) / 8
       }
 
       <section class="category-nav" aria-label="文章分类">
-        <a class="active" href="/">
-          <span>全部</span>
-          <small>{posts.length}</small>
-        </a>
-        {
-          categories.slice(0, 4).map(([category, count]) => (
-            <a href={`/categories/${category}`}>
-              <span>{category}</span>
-              <small>{count}</small>
-            </a>
-          ))
-        }
+        <a class="active" href="/"><span>全部</span><small>{posts.length}</small></a>
+        {categories.slice(0, 4).map(([category, count]) => (
+          <a href={`/categories/${category}`}><span>{category}</span><small>{count}</small></a>
+        ))}
       </section>
 
       <section class="article-grid">
-        {
-          page.posts.length === 0 ? (
-            <div class="empty glass-card">还没有文章，马上就来...</div>
-          ) : (
-            page.posts.map((post) => <PostCard post={post} />)
-          )
-        }
+        {page.posts.length === 0 ? (
+          <div class="empty glass-card">还没有文章，马上就来...</div>
+        ) : (
+          page.posts.map((post) => <PostCard post={post} />)
+        )}
       </section>
 
       <Pagination currentPage={page.currentPage} totalPages={page.totalPages} />
@@ -89,32 +80,20 @@ const runningDays = Math.max(1, Math.ceil((Date.now() - siteStart.getTime()) / 8
           <a href="/about" title="个人页">A</a>
         </div>
       </section>
-
       <section class="sidebar-card stats-card glass-card">
         <h3>站点统计</h3>
         <div class="stats-grid">
-          <div>
-            <strong>{posts.length}</strong>
-            <span>文章</span>
-          </div>
-          <div>
-            <strong>{allTags.length}</strong>
-            <span>标签</span>
-          </div>
-          <div>
-            <strong>{runningDays}</strong>
-            <span>天运行</span>
-          </div>
+          <div><strong>{posts.length}</strong><span>文章</span></div>
+          <div><strong>{allTags.length}</strong><span>标签</span></div>
+          <div><strong>{runningDays}</strong><span>天运行</span></div>
         </div>
       </section>
-
       <section class="sidebar-card glass-card">
         <h3>标签云</h3>
         <div class="tag-cloud">
           {allTags.map(([tag]) => <a href={`/tags/${tag}`}>{tag}</a>)}
         </div>
       </section>
-
       <section class="sidebar-card notice-card glass-card">
         <h3>公告</h3>
         <p>欢迎来到 Afu's Blog。这里记录技术笔记、项目心得与日常灵感。</p>
