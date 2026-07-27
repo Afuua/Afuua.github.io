@@ -95,7 +95,37 @@ const ogImageUrl = ogImage ?? `${siteUrl}og-image.png`;
       syncScrollState();
 
       themeToggle?.addEventListener("click", () => {
-        applyTheme(root.dataset.theme === "dark" ? "light" : "dark");
+        const next = root.dataset.theme === "dark" ? "light" : "dark";
+        const isToDark = next === "dark";
+        const oldBg = document.querySelector('.global-bg');
+
+        const newBg = document.createElement('div');
+        newBg.className = 'global-bg';
+        newBg.style.backgroundImage = isToDark
+          ? 'url(/assets/bg-dark.jpg)'
+          : 'url(/assets/bg-light.jpg)';
+        newBg.style.transition = 'clip-path 0.6s ease-in-out';
+        newBg.style.clipPath = isToDark
+          ? 'inset(0 0 100% 0)'
+          : 'inset(100% 0 0 0)';
+        document.body.insertBefore(newBg, document.body.firstChild);
+
+        requestAnimationFrame(() => {
+          newBg.style.clipPath = 'inset(0 0 0 0)';
+          if (oldBg) {
+            oldBg.style.transition = 'opacity 0.6s ease-in-out';
+            oldBg.style.opacity = '0';
+          }
+        });
+
+        root.classList.add('theme-transitioning');
+        setTimeout(() => {
+          applyTheme(next);
+        }, 250);
+        setTimeout(() => {
+          if (oldBg) oldBg.remove();
+          root.classList.remove('theme-transitioning');
+        }, 650);
       });
 
       backTop?.addEventListener("click", () => {
