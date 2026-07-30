@@ -3,7 +3,8 @@ title: "医疗RAG系统：从文档到可追溯问答的全链路工程实践"
 date: 2026-06-24
 description: "基于Spring Boot + Spring AI的医学循证RAG后端，涵盖文档清洗Pipeline、四策略切片、多向量库隔离、七类意图Prompt编排、文档去重与版本识别、RAGAS评估治理。"
 category: "后端"
-tags: ["RAG", "Spring Boot", "Spring AI", "DeepSeek", "向量检索", "后端"]
+tags: ["RAG","Spring Boot","Spring AI","DeepSeek","向量检索","后端"]
+cover: "cover_1.jpg"
 pinned: true
 pinOrder: 30
 draft: false

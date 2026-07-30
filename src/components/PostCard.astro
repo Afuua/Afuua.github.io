@@ -2,12 +2,13 @@
 const { post } = Astro.props;
 const href = `/posts/${post.id}`;
 const category = post.data.category || "未分类";
+const coverSrc = post.data.cover ? `/assets/covers/${post.data.cover}` : '/assets/home-bg.jpg?v=2';
 ---
 
 <article class="article-card">
   <a href={href} class="article-card-link">
     <div class="article-cover">
-      <img src="/assets/home-bg.jpg?v=2" alt={post.data.title} loading="lazy" />
+      <img src={coverSrc} alt={post.data.title} loading="lazy" />
       <span>{category}</span>
       {post.data.pinned && <strong class="pin-badge">置顶</strong>}
     </div>

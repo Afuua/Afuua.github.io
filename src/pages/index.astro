@@ -10,8 +10,6 @@ const featured = posts[0];
 const allTags = getAllTags(posts);
 const categories = getAllCategories(posts);
 const page = paginatePosts(posts, 1);
-const siteStart = new Date("2026-03-04T00:00:00+08:00");
-const runningDays = Math.max(1, Math.ceil((Date.now() - siteStart.getTime()) / 86400000));
 ---
 
 <BaseLayout title="Afu的博客" description="写代码、聊技术、分享生活。">
@@ -34,7 +32,7 @@ const runningDays = Math.max(1, Math.ceil((Date.now() - siteStart.getTime()) / 8
               <a href={`/posts/${featured.id}`}>阅读全文</a>
             </div>
             <a class="featured-item" href={`/posts/${featured.id}`}>
-              <img src="/assets/home-bg.jpg?v=2" alt={featured.data.title} />
+              <img src={featured.data.cover ? `/assets/covers/${featured.data.cover}` : '/assets/home-bg.jpg?v=2'} alt={featured.data.title} />
               <div>
                 <h2>{featured.data.title}</h2>
                 <p>{featured.data.description}</p>
@@ -80,13 +78,9 @@ const runningDays = Math.max(1, Math.ceil((Date.now() - siteStart.getTime()) / 8
           <a href="/about" title="个人页">A</a>
         </div>
       </section>
-      <section class="sidebar-card stats-card glass-card">
-        <h3>站点统计</h3>
-        <div class="stats-grid">
-          <div><strong>{posts.length}</strong><span>文章</span></div>
-          <div><strong>{allTags.length}</strong><span>标签</span></div>
-          <div><strong>{runningDays}</strong><span>天运行</span></div>
-        </div>
+      <section class="sidebar-card notice-card glass-card">
+        <h3>公告</h3>
+        <p>欢迎来到 Afu's Blog。这里记录技术笔记、项目心得与日常灵感。</p>
       </section>
       <section class="sidebar-card glass-card">
         <h3>标签云</h3>
@@ -94,9 +88,13 @@ const runningDays = Math.max(1, Math.ceil((Date.now() - siteStart.getTime()) / 8
           {allTags.map(([tag]) => <a href={`/tags/${tag}`}>{tag}</a>)}
         </div>
       </section>
-      <section class="sidebar-card notice-card glass-card">
-        <h3>公告</h3>
-        <p>欢迎来到 Afu's Blog。这里记录技术笔记、项目心得与日常灵感。</p>
+      <section class="sidebar-card stats-card glass-card">
+        <h3>站点统计</h3>
+        <div class="stats-grid">
+          <div><strong>{posts.length}</strong><span>文章</span></div>
+          <div><strong>{allTags.length}</strong><span>标签</span></div>
+          <div><strong data-running-days></strong><span>天运行</span></div>
+        </div>
       </section>
     </aside>
   </section>

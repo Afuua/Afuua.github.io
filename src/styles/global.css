@@ -15,14 +15,14 @@
 }
 
 /* ==================================================================
-   亮色主题 —�?暖纸
+   亮色主题
    ================================================================== */
 :root {
   --bg: #EDF1F5;
   --bg-soft: #E2E8EE;
   --card-bg: rgba(248, 250, 252, 0.7);
   --card-bg-solid: #F8FAFC;
-  --text: #1E262F;
+  --text: #2C2F33;
   --text-muted: #5B6674;
   --border: rgba(100, 116, 132, 0.18);
   --primary: #4A7B9E;
@@ -36,6 +36,10 @@
   --nav-b: 236;
   --nav-alpha: 0.1;
   --nav-alpha-max: 0.88;
+  --footer-r: 210;
+  --footer-g: 218;
+  --footer-b: 228;
+  --footer-alpha: 0.4;
   --hero-overlay: rgba(15, 22, 32, 0.28);
   --code-bg: #1A1E24;
   --code-text: #E5EAF0;
@@ -44,7 +48,7 @@
 }
 
 /* ==================================================================
-   暗色主题 —�?暖石�?   ================================================================== */
+   暗色主题   ================================================================== */
 :root[data-theme="dark"] {
   --bg: #1C1B19;
   --bg-soft: #242220;
@@ -64,6 +68,10 @@
   --nav-b: 25;
   --nav-alpha: 0.1;
   --nav-alpha-max: 0.88;
+  --footer-r: 36;
+  --footer-g: 34;
+  --footer-b: 32;
+  --footer-alpha: 0.6;
   --hero-overlay: rgba(8, 6, 4, 0.55);
   --code-bg: #161512;
   --code-text: #E5DFD3;
@@ -165,7 +173,7 @@ main { min-height: calc(100vh - 88px); }
   inset: 0;
   z-index: -1;
   background: url('/assets/nav-bg.jpg') center / cover;
-  opacity: 0.25;
+  opacity: var(--nav-img-opacity, 0.25);
 }
 
 .site-header.is-scrolled {
@@ -225,7 +233,6 @@ main { min-height: calc(100vh - 88px); }
   border-radius: 999px;
   background: transparent;
   color: var(--text);
-  cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
@@ -288,12 +295,18 @@ main { min-height: calc(100vh - 88px); }
    Footer
    ================================================================== */
 .site-footer {
+  position: relative;
   height: auto;
   padding: 28px 16px 32px;
-  color: var(--text-muted);
-  border-top: 1px solid var(--border);
-  background: var(--bg-soft);
+  color: #C8CDD4;
+  background: rgba(var(--footer-r), var(--footer-g), var(--footer-b), 0.3);
+  backdrop-filter: blur(6px);
 }
+
+.footer-inner a { color: #C8CDD4; }
+
+:root[data-theme="dark"] .site-footer { color: #AAA49C; }
+:root[data-theme="dark"] .footer-inner a { color: #AAA49C; }
 
 .footer-inner {
   display: flex;
@@ -361,7 +374,6 @@ main { min-height: calc(100vh - 88px); }
   left: 50%;
   z-index: 2;
   transform: translateX(-50%);
-  cursor: pointer;
   animation: arrow-bounce 2.2s ease-in-out infinite;
 }
 

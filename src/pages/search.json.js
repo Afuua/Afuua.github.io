@@ -11,6 +11,7 @@ export async function GET() {
         description: post.data.description,
         category: post.data.category || "未分类",
         tags: post.data.tags,
+        cover: post.data.cover || null,
         date: post.data.date.toISOString(),
         pinned: post.data.pinned,
       }))

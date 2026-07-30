@@ -67,7 +67,7 @@ const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
           <article class="article-card is-visible">
             <a href="/posts/${encodeURIComponent(p.id)}" class="article-card-link">
               <div class="article-cover">
-                <img src="/assets/home-bg.jpg?v=2" alt="${esc(p.title)}" loading="lazy" />
+                <img src="${p.cover ? '/assets/covers/' + esc(p.cover) : '/assets/home-bg.jpg?v=2'}" alt="${esc(p.title)}" loading="lazy" />
                 <span>${esc(p.category)}</span>
                 ${p.pinned ? '<strong class="pin-badge">置顶</strong>' : ''}
               </div>

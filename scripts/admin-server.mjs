@@ -2,7 +2,7 @@ import { createServer } from "node:http";
 import { Buffer } from "node:buffer";
 import { spawn } from "node:child_process";
 import { randomUUID, timingSafeEqual } from "node:crypto";
-import { readFile, readdir, stat, unlink, writeFile } from "node:fs/promises";
+import { readFile, readdir, stat, unlink, writeFile, mkdir } from "node:fs/promises";
 import { extname, resolve, sep } from "node:path";
 import {
   createSnapshot,
@@ -15,6 +15,7 @@ import {
 
 const postsDir = currentPostsDir;
 const backgroundPath = currentBackgroundPath;
+const coversDir = resolve(rootDir, "public", "assets", "covers");
 
 const host = "127.0.0.1";
 const port = Number(process.env.ADMIN_PORT || 8787);
@@ -198,7 +199,7 @@ function formatPostMarkdown(post) {
     category
   )}\ntags: ${JSON.stringify(
     tags
-  )}\npinned: ${pinned}\npinOrder: ${pinOrder}\ndraft: ${draft}\n---\n\n${content}`;
+  )}\ncover: ${JSON.stringify(String(post.cover || "").trim())}\npinned: ${pinned}\npinOrder: ${pinOrder}\ndraft: ${draft}\n---\n\n${content}`;
 }
 
 async function listPosts() {
@@ -573,6 +574,19 @@ const adminPage = String.raw`<!doctype html>
           <label for="description">摘要</label>
           <input id="description" />
         </div>
+        <div class="editor-grid">
+          <div class="field">
+            <label for="coverSelect">封面图</label>
+            <div class="background-box" style="border-top:none;margin-top:0;padding-top:0">
+              <img id="coverPreview" src="assets/home-bg.jpg" alt="封面预览" />
+              <div>
+                <select id="coverSelect" style="width:100%;margin-bottom:8px"><option value="">默认封面</option></select>
+                <input id="coverFile" type="file" accept="image/jpeg,image/png,image/webp" />
+                <button id="uploadCover" class="primary" style="margin-top:6px">上传</button>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="field">
           <label for="tags">标签，使用逗号分隔</label>
           <input id="tags" placeholder="前端, Astro, 随笔" />
@@ -631,6 +645,7 @@ const adminPage = String.raw`<!doctype html>
           title: $("title").value.trim(),
           date: $("date").value,
           description: $("description").value.trim(),
+          cover: $("coverSelect").value,
           category: $("category").value.trim() || "未分类",
           tags: $("tags").value.split(/[,，]/).map((tag) => tag.trim()).filter(Boolean),
           pinned: $("pinned").checked,
@@ -646,6 +661,8 @@ const adminPage = String.raw`<!doctype html>
         $("date").value = String(post.date || "").slice(0, 10);
         $("slug").value = post.slug || "";
         $("description").value = post.description || "";
+        $("coverSelect").value = post.cover || "";
+        $("coverPreview").src = post.cover ? "assets/covers/" + post.cover : "assets/home-bg.jpg";
         $("category").value = post.category || "未分类";
         $("tags").value = Array.isArray(post.tags) ? post.tags.join(", ") : "";
         $("pinned").checked = Boolean(post.pinned);
@@ -756,6 +773,37 @@ const adminPage = String.raw`<!doctype html>
         setStatus("构建完成，用时 " + Math.round(result.durationMs / 1000) + " 秒");
       }
 
+      async function loadCoverList() {
+        const covers = await api("api/covers");
+        const sel = $("coverSelect");
+        const current = sel.value;
+        sel.innerHTML = '<option value="">默认封面</option>';
+        covers.forEach(c => {
+          sel.innerHTML += '<option value="' + c + '"' + (c === current ? ' selected' : '') + '>' + c + '</option>';
+        });
+      }
+
+      async function uploadCover() {
+        const file = $("coverFile").files[0];
+        if (!file) { setStatus("请先选择封面图片文件"); return; }
+        setStatus("正在上传封面...");
+        const dataUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        const result = await api("api/covers", {
+          method: "POST",
+          body: JSON.stringify({ dataUrl, filename: file.name.replace(/\.[^.]+$/, "") }),
+        });
+        await loadCoverList();
+        $("coverSelect").value = result.filename;
+        $("coverPreview").src = "assets/covers/" + result.filename + "?v=" + Date.now();
+        $("coverFile").value = "";
+        setStatus("封面已上传");
+      }
+
       $("refresh").onclick = () => loadPosts().catch((error) => setStatus(error.message, true));
       $("newPost").onclick = newPost;
       $("savePost").onclick = () => saveCurrentPost().catch((error) => setStatus(error.message, true));
@@ -763,11 +811,17 @@ const adminPage = String.raw`<!doctype html>
       $("uploadBg").onclick = () => uploadBackground().catch((error) => setStatus(error.message, true));
       $("buildSite").onclick = () => buildSite().catch((error) => setStatus(error.message, true));
       $("search").oninput = renderList;
+      $("uploadCover").onclick = () => uploadCover().catch((error) => setStatus(error.message, true));
+      $("coverSelect").onchange = () => {
+        const v = $("coverSelect").value;
+        $("coverPreview").src = v ? "assets/covers/" + v : "assets/home-bg.jpg";
+      };
       $("title").addEventListener("input", () => {
         if (!state.currentSlug && !$("slug").value.trim()) $("slug").value = slugify($("title").value);
       });
 
       loadPosts().then(() => {
+        loadCoverList();
         if (state.posts[0]) loadPost(state.posts[0].slug);
         else newPost();
       }).catch((error) => setStatus(error.message, true));
@@ -820,6 +874,28 @@ async function handleRequest(req, res) {
         sendJson(res, { ok: true, build });
         return;
       }
+    }
+
+    if (req.method === "GET" && pathname === "/api/covers") {
+      await mkdir(coversDir, { recursive: true });
+      const files = await readdir(coversDir);
+      const covers = files.filter(f => /\.(jpg|jpeg|png|webp)$/i.test(f));
+      sendJson(res, covers);
+      return;
+    }
+
+    if (req.method === "POST" && pathname === "/api/covers") {
+      await mkdir(coversDir, { recursive: true });
+      const payload = await readJson(req);
+      const match = String(payload.dataUrl || "").match(/^data:image\/(jpeg|png|webp);base64,([\s\S]+)$/);
+      if (!match) throw new Error("Only JPEG, PNG or WebP images are supported for covers.");
+      const bytes = Buffer.from(match[2], "base64");
+      if (bytes.length > 4 * 1024 * 1024) throw new Error("Cover must be smaller than 4MB.");
+      const ext = match[1] === "jpeg" ? "jpg" : match[1];
+      const filename = `${payload.filename || "cover"}.${ext}`;
+      await writeFile(resolve(coversDir, filename), bytes);
+      sendJson(res, { ok: true, filename });
+      return;
     }
 
     if (req.method === "POST" && pathname === "/api/background") {
